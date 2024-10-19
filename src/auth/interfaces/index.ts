@@ -1,4 +1,3 @@
-import { PlatformTypesEnum } from '@alpharide/server/database/entities/account.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 export type JwtPayload = {
@@ -6,7 +5,6 @@ export type JwtPayload = {
   email?: string;
   name?: string;
   phoneNumber?: string;
-  platform?: PlatformTypesEnum;
 };
 
 export type JwtPayloadWithRt = JwtPayload & { refreshToken: string };
