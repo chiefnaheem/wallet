@@ -1,4 +1,3 @@
-import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import {
   IsEmail,
   IsEnum,
@@ -7,136 +6,159 @@ import {
   IsString,
   IsBoolean,
   IsDate,
-  IsJSON,
-  IsNumber,
-  ValidateNested,
+  IsPhoneNumber,
+  Length,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import { UserRole } from '@rekenplus/database/entities/user.entity';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { AccountStatusEnum, GenderEnum, SignupMediumEnum } from '@gowagr/server/database/entities/account.entity';
 
-class BusinessDetailsDto {
-  @ApiProperty({ description: 'Name of the business' })
+
+export class UserDto {
+  @ApiProperty({
+    example: 'user@example.com',
+    description: 'User email address',
+    required: false,
+  })
+  @IsEmail({}, { message: 'Email must be valid' })
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty({
+    example: 'John',
+    description: 'First name of the user',
+    required: false,
+  })
   @IsString()
   @IsNotEmpty()
-  businessName: string;
+  firstName: string;
 
-  @ApiProperty({ description: 'Address of the business' })
+  @ApiProperty({
+    example: 'Doe',
+    description: 'Last name of the user',
+    required: false,
+  })
   @IsString()
   @IsNotEmpty()
-  businessAddress: string;
+  lastName: string;
 
-  @ApiProperty({ description: 'Logo of the business' })
+  @ApiProperty({
+    example: '123 Main St',
+    description: 'User address',
+    required: false,
+  })
   @IsString()
-  @IsNotEmpty()
-  businessLogo: string;
-
-  @ApiProperty({ description: 'Phone number of the business' })
-  @IsString()
-  @IsNotEmpty()
-  businessPhoneNumber: string;
-}
-
-class ContactDetailsDto {
-  @ApiProperty({ description: 'Contact address' })
-  @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   address: string;
 
-  @ApiProperty({ description: 'Contact phone number' })
-  @IsString()
-  @IsNotEmpty()
-  phoneNumber: string;
-
-  @ApiProperty({ description: 'Contact email' })
-  @IsEmail()
-  email: string;
-
-  @ApiProperty({ description: 'Contact zip code' })
-  @IsString()
-  @IsNotEmpty()
-  zipCode: string;
-}
-
-export class CreateUserDto {
-  @ApiProperty({ description: 'Email of the user', uniqueItems: true })
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
-
-  @ApiProperty({ description: 'Password of the user' })
+  @ApiProperty({
+    example: '1990-01-01',
+    description: 'Date of birth (YYYY-MM-DD)',
+    required: false,
+  })
   @IsString()
   @IsOptional()
-  password: string;
+  dob: string;
 
-  @ApiProperty({ description: 'Name of the user' })
+  @ApiProperty({
+    example: 'A12345678',
+    description: 'National Identification Number (NIN)',
+    required: false,
+  })
   @IsString()
   @IsOptional()
-  name: string;
+  nin: string;
 
-  @ApiProperty({ description: 'Verification status of the user' })
+  @ApiProperty({
+    example: 'https://example.com/profile.jpg',
+    description: 'URL of the user profile image',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  profileImage: string;
+
+  @ApiProperty({
+    example: SignupMediumEnum.WEB,
+    enum: SignupMediumEnum,
+    description: 'Medium the user used to sign up',
+    required: false,
+  })
+  @IsEnum(SignupMediumEnum)
+  @IsOptional()
+  signupMedium: SignupMediumEnum;
+
+  @ApiProperty({
+    example: true,
+    description: 'Is the email verified?',
+  })
   @IsBoolean()
   @IsOptional()
-  isVerified: boolean;
+  isEmailVerified: boolean;
 
-  @ApiProperty({ description: 'OTP for user verification' })
-  @IsString()
+  @ApiProperty({
+    example: true,
+    description: 'Is the phone number verified?',
+  })
+  @IsBoolean()
   @IsOptional()
-  otp: string;
+  isPhoneNumberVerified: boolean;
 
-  @ApiProperty({ description: 'Role of the user', enum: UserRole })
-  @IsEnum(UserRole)
-  @IsOptional()
-  role: UserRole;
-
-  @ApiProperty({ description: 'Apple ID of the user' })
-  @IsString()
-  @IsOptional()
-  appleId: string;
-
-  @ApiProperty({ description: 'OTP expiration date' })
+  @ApiProperty({
+    example: '2023-10-01T12:00:00Z',
+    description: 'Date and time when email was verified',
+    required: false,
+  })
   @IsDate()
   @IsOptional()
-  @Type(() => Date)
-  otpExpiresAt: Date;
-
-  @ApiProperty({ description: 'Date when the email was verified' })
-  @IsDate()
-  @IsOptional()
-  @Type(() => Date)
   emailVerifiedAt: Date;
 
   @ApiProperty({
-    description: 'Business details of the user',
-    type: BusinessDetailsDto,
+    example: '2023-10-01T12:00:00Z',
+    description: 'Date and time when phone number was verified',
+    required: false,
   })
-  @ValidateNested()
+  @IsDate()
   @IsOptional()
-  @Type(() => BusinessDetailsDto)
-  businessDetails: BusinessDetailsDto;
+  phoneNumberVerifiedAt: Date;
 
   @ApiProperty({
-    description: 'Contact details of the user',
-    type: ContactDetailsDto,
+    example: AccountStatusEnum.ACTIVE,
+    enum: AccountStatusEnum,
+    description: 'Current status of the account',
+    required: false,
   })
-  @ValidateNested()
+  @IsEnum(AccountStatusEnum)
   @IsOptional()
-  @Type(() => ContactDetailsDto)
-  contactDetails: ContactDetailsDto;
+  accountStatus: AccountStatusEnum;
 
-  @ApiProperty({ description: 'Date of birth of the user' })
-  @IsString()
+  @ApiProperty({
+    example: GenderEnum.MALE,
+    enum: GenderEnum,
+    description: 'Gender of the user',
+    required: false,
+  })
+  @IsEnum(GenderEnum)
   @IsOptional()
-  dateOfBirth: string;
+  gender: GenderEnum;
 
-  @ApiProperty({ description: 'Age of the user' })
-  @IsNumber()
+  @ApiProperty({
+    example: '+1234567890',
+    description: 'User phone number',
+    required: false,
+  })
+  @IsPhoneNumber(null, { message: 'Phone number must be valid' })
   @IsOptional()
-  age: number;
+  phoneNumber: string;
+
+  @ApiProperty({
+    example: '2023-10-13T12:00:00Z',
+    description: 'Last login date of the user',
+    required: false,
+  })
+  @IsDate()
+  @IsOptional()
+  lastLoggedIn: Date;
 }
 
-export class UpdateUserDto extends PickType(CreateUserDto, [
-  'businessDetails',
-  'contactDetails',
-  'dateOfBirth',
-  'name',
-]) {}
+
+export class CreateUserDto extends PickType(UserDto, ['email', 'password', 'firstName', 'lastName', 'signupMedium', 'phoneNumber', 'dob']){}
