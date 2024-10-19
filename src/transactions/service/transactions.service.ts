@@ -51,11 +51,10 @@ export class TransactionService {
 
   /**
    * Performs a transfer between two users' wallets.
-   * The function ensures ACID principles by wrapping everything in a transaction and using row-level locks.
    */
   async transferFunds(
-    senderId: number,
-    receiverId: number,
+    senderId: string,
+    receiverId: string,
     amount: number,
   ): Promise<void> {
     if (senderId === receiverId) {
@@ -158,15 +157,15 @@ export class TransactionService {
    * @returns Paginated and filtered transaction history.
    */
   async getTransactionHistory(
-    userId: number,
+    userId: string,
     page: number = 1,
     limit: number = 10,
     filters?: {
       transactionType?: transactionType;
       transactionChannel?: TransactionChannel;
       status?: string;
-      fromDate?: Date;
-      toDate?: Date;
+      fromDate?: string;
+      toDate?: string;
     },
   ): Promise<{
     data: TransactionEntity[];

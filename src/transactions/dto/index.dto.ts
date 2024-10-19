@@ -3,8 +3,16 @@ import {
   TransactionChannel,
   transactionType,
 } from '@gowagr/server/database/entities/transaction.entity';
-import { ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
+import {
+  IsDateString,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class FilterTransactionsDto extends PickType(PaginationDto, [
   'page',
@@ -55,4 +63,22 @@ export class FilterTransactionsDto extends PickType(PaginationDto, [
   @IsOptional()
   @IsString({ message: 'toDate must be a valid date string' })
   toDate?: string;
+}
+
+export class TransferFundsDto {
+  @ApiProperty({
+    description: 'Receiver id',
+    example: '2024-01-01',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  receiverId: string;
+
+  @ApiProperty({
+    description: 'Amount to b transferred',
+    example: 20,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  amount: number;
 }
