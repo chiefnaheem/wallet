@@ -31,10 +31,8 @@ export class UserController {
     };
   }
 
-  @Delete(':id')
-  async deleteUser(
-    @GetCurrentUser('uid') uid: string,
-  ): Promise<ResponseDto> {
+  @Delete()
+  async deleteUser(@GetCurrentUser('uid') uid: string): Promise<ResponseDto> {
     const profile = await this.userService.deleteUser(uid);
     return {
       statusCode: 200,
@@ -42,6 +40,4 @@ export class UserController {
       data: profile,
     };
   }
-
- 
 }

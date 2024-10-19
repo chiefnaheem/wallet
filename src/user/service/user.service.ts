@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UserDto } from '../dto/index.dto';
 
 @Injectable()
 export class UserService {
@@ -37,7 +38,7 @@ export class UserService {
 
 
 
-      return this.sanitizeUser(data)
+      return this.sanitizeUser(data) as unknown as UserEntity
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -115,10 +116,6 @@ export class UserService {
       throw error;
     }
   }
-
- 
-
- 
 
   async updateUser(id: string, user: Partial<UserEntity>): Promise<UserEntity | undefined> {
     try {
