@@ -9,6 +9,7 @@ import {
   OneToOne,
 } from 'typeorm';
 import { WalletEntity } from './wallet.entity';
+import { TransactionEntity } from './transaction.entity';
 
 
 
@@ -39,7 +40,7 @@ export enum DriverTypeEnum {
 }
 
 @Entity({ name: 'user' })
-export class User extends BaseEntity {
+export class UserEntity extends BaseEntity {
  
 
 
@@ -131,6 +132,8 @@ export class User extends BaseEntity {
   wallet: WalletEntity;
 
   
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.user)
+  transactions: TransactionEntity[];
 
   
 

@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { User } from './user.entity';
+import {  UserEntity } from './user.entity';
 
 @Entity({ name: 'wallets' })
 export class WalletEntity extends BaseEntity {
@@ -13,9 +13,9 @@ export class WalletEntity extends BaseEntity {
   @Column()
   currency: string;
 
-  @OneToOne(() => User, (user) => user.wallet, {
+  @OneToOne(() => UserEntity, (user) => user.wallet, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  user: User;
+  user: UserEntity;
 }

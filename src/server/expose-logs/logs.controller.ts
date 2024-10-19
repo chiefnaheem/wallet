@@ -1,3 +1,4 @@
+import { Public } from '@gowagr/common/decorators/public.decorator';
 import { Controller, Get, Logger } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { LogsService } from './logs.service';
