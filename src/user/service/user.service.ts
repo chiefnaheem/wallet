@@ -1,5 +1,5 @@
 import { PasswordManager } from '@gowagr/common/functions/password-manager';
-import { User } from '@gowagr/server/database/entities/user.entity';
+import { UserEntity } from '@gowagr/server/database/entities/user.entity';
 import {
   ConflictException,
   Injectable,
@@ -12,13 +12,13 @@ import { Repository } from 'typeorm';
 export class UserService {
   private readonly logger = new Logger(UserService.name);
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
   ) {}
 
  
 
-  async createUser(user: Partial<User>): Promise<User> {
+  async createUser(user: Partial<UserEntity>): Promise<UserEntity> {
     try {
       this.logger.debug(`Creating user with data ${JSON.stringify(user)}`);
       const existingUser = await this.findUserByEmail(user.email);
@@ -37,7 +37,7 @@ export class UserService {
 
 
 
-      return this.sanitizeUser(data) as unknown as User;
+      return this.sanitizeUser(data)
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -60,7 +60,7 @@ export class UserService {
     return userName;
   }
 
-  async findUserByEmail(email: string): Promise<User> {
+  async findUserByEmail(email: string): Promise<UserEntity> {
     try {
       this.logger.debug(`Finding user with email ${email}`);
       const user = await this.userRepository.findOne({
@@ -75,7 +75,7 @@ export class UserService {
     }
   }
 
-  async findUserByUsername(username: string): Promise<User> {
+  async findUserByUsername(username: string): Promise<UserEntity | null> {
     try {
       const user = await this.userRepository.findOne({
         where: {
@@ -89,7 +89,7 @@ export class UserService {
     }
   }
 
-  async findUserById(id: string): Promise<User | null> {
+  async findUserById(id: string): Promise<UserEntity> {
     try {
       this.logger.debug(`Finding user with id ${id}`);
       const user = await this.userRepository.findOneOrFail({
@@ -120,7 +120,7 @@ export class UserService {
 
  
 
-  async updateUser(id: string, user: Partial<User>): Promise<User | undefined> {
+  async updateUser(id: string, user: Partial<UserEntity>): Promise<UserEntity | undefined> {
     try {
       this.logger.debug(`Updating user with id ${id}`);
       Object.assign(user, { id });
@@ -132,7 +132,7 @@ export class UserService {
     }
   }
 
-  async sanitizeUser(user: User): Promise<Partial<User>> {
+  async sanitizeUser(user: UserEntity): Promise<Partial<UserEntity>> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...rest } = user;
