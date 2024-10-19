@@ -123,23 +123,7 @@ import {
   
    
   
-    async getUserName(firstName: string, lastName: string) {
-      // Use first name and last name to create a username and remove any white space
-      let userName = `@${firstName}${lastName}`.replace(/\s/g, '');
-  
-      // Check if userName exist, if yes, generate a random 4 digit number and concatenate with userName.
-      let isUserNameExist = await this.userService.findUserByUsername(
-        userName.toLowerCase(),
-      );
-      while (isUserNameExist) {
-        const random = Math.floor(1000 + Math.random() * 9000);
-        userName = `@${firstName}${lastName}${random}`.replace(/\s/g, '');
-        isUserNameExist = await this.userService.findUserByUsername(
-          userName.toLowerCase(),
-        );
-      }
-      return userName;
-    }
+   
   
    
   }

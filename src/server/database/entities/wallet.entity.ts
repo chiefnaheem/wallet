@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '@alpharide/server/database/base.entity';
 import { PaymentMethodEntity } from '@alpharide/server/database/entities/paymentMethod.entity';
-import { AccountEntity } from './account.entity';
+import { AccountEntity } from './user.entity';
 import { WithdrawalEntity } from './withdrawal.entity';
 
 @Entity({ name: 'wallets' })

@@ -1,3 +1,5 @@
+import { PasswordManager } from '@gowagr/common/functions/password-manager';
+import { User } from '@gowagr/server/database/entities/user.entity';
 import {
   ConflictException,
   Injectable,
@@ -5,11 +7,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { addMinutes } from 'date-fns';
-import { IdentificationManager } from 'src/common/functions/identification-manager';
-import { PasswordManager } from 'src/common/functions/password-manager';
-import { User, UserRole } from 'src/database/entities/user.entity';
-import { MailsService } from 'src/mail/mail.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -18,7 +15,6 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private readonly mailService: MailsService,
   ) {}
 
  
@@ -30,26 +26,39 @@ export class UserService {
       if (existingUser) {
         throw new ConflictException('User already exists');
       }
+      const username = await this.getUserName(user.firstName, user.lastName)
       const newUser = this.userRepository.create({
         ...user,
-        isVerified: true,
+        isEmailVerified: true,
+        emailVerifiedAt: new Date(),
+        username,
         password: await PasswordManager.hash(user.password),
       });
       const data = await this.userRepository.save(newUser);
 
 
 
-     
-
-     
-
-     
-
-      return this.sanitizeUser(update) as unknown as User;
+      return this.sanitizeUser(data) as unknown as User;
     } catch (error) {
       this.logger.error(error);
       throw error;
     }
+  }
+
+  async getUserName(firstName: string, lastName: string) {
+    let userName = `${firstName}${lastName}`.replace(/\s/g, '');
+
+    let isUserNameExist = await this.findUserByUsername(
+      userName.toLowerCase(),
+    );
+    while (isUserNameExist) {
+      const random = Math.floor(1000 + Math.random() * 9000);
+      userName = `${firstName}${lastName}${random}`.replace(/\s/g, '');
+      isUserNameExist = await this.findUserByUsername(
+        userName.toLowerCase(),
+      );
+    }
+    return userName;
   }
 
   async findUserByEmail(email: string): Promise<User> {
@@ -105,37 +114,9 @@ export class UserService {
     }
   }
 
-  async deleteAdmin(): Promise<null> {
-    try {
-      const user = await this.userRepository.findOne({
-        where: {
-          role: UserRole.ADMIN,
-        },
-      });
-      if (user) {
-        await this.userRepository.delete(user.id);
-      }
+ 
 
-      return null;
-    } catch (error) {
-      this.logger.error(error);
-      throw error;
-    }
-  }
-
-  async createAdmin(): Promise<User> {
-    try {
-      return await this.createUser({
-        email: 'karan.prajapati@aeliusventure.com',
-        password: 'Karan@A123',
-        name: 'Karan Prajapati',
-        role: UserRole.ADMIN,
-        isVerified: true,
-      });
-    } catch (err) {
-      throw err;
-    }
-  }
+ 
 
   async updateUser(id: string, user: Partial<User>): Promise<User | undefined> {
     try {

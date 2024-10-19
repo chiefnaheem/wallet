@@ -1,8 +1,7 @@
+import { ResponseDto } from '@gowagr/common/interface/response.interface';
 import { Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { GetCurrentUser } from 'src/common/decorators/get-current-user.decorator';
-import { Public } from 'src/common/decorators/public.decorator';
-import { ResponseDto } from 'src/common/interface/response.interface';
-import { UpdateUserDto } from '../dto/user.dto';
+import { UpdateUserDto } from '../dto/index.dto';
 import { UserService } from '../service/user.service';
 
 @Controller('user')
@@ -21,10 +20,10 @@ export class UserController {
 
   @Patch()
   async updateUser(
-    @GetCurrentUser('id') id: string,
+    @GetCurrentUser('uid') uid: string,
     payload: UpdateUserDto,
   ): Promise<ResponseDto> {
-    const profile = await this.userService.updateUser(id, payload);
+    const profile = await this.userService.updateUser(uid, payload);
     return {
       statusCode: 200,
       message: 'success',
@@ -34,10 +33,9 @@ export class UserController {
 
   @Delete(':id')
   async deleteUser(
-    @GetCurrentUser('id') id: string,
-    payload: UpdateUserDto,
+    @GetCurrentUser('uid') uid: string,
   ): Promise<ResponseDto> {
-    const profile = await this.userService.deleteUser(id);
+    const profile = await this.userService.deleteUser(uid);
     return {
       statusCode: 200,
       message: 'success',
@@ -45,14 +43,5 @@ export class UserController {
     };
   }
 
-  @Public()
-  @Post('create-admin')
-  async createAdmin(): Promise<ResponseDto> {
-    const profile = await this.userService.createAdmin();
-    return {
-      statusCode: 200,
-      message: 'success',
-      data: profile,
-    };
-  }
+ 
 }

@@ -8,9 +8,10 @@ import {
   IsDate,
   IsPhoneNumber,
   Length,
+  Min,
 } from 'class-validator';
-import { ApiProperty, PickType } from '@nestjs/swagger';
-import { AccountStatusEnum, GenderEnum, SignupMediumEnum } from '@gowagr/server/database/entities/account.entity';
+import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
+import { AccountStatusEnum, GenderEnum, SignupMediumEnum } from '@gowagr/server/database/entities/user.entity';
 
 
 export class UserDto {
@@ -61,12 +62,13 @@ export class UserDto {
 
   @ApiProperty({
     example: 'A12345678',
-    description: 'National Identification Number (NIN)',
+    description: 'Password',
     required: false,
   })
   @IsString()
-  @IsOptional()
-  nin: string;
+  @Min(6)
+  @IsNotEmpty()
+  password: string;
 
   @ApiProperty({
     example: 'https://example.com/profile.jpg',
@@ -162,3 +164,5 @@ export class UserDto {
 
 
 export class CreateUserDto extends PickType(UserDto, ['email', 'password', 'firstName', 'lastName', 'signupMedium', 'phoneNumber', 'dob']){}
+
+export class UpdateUserDto extends PartialType(OmitType(CreateUserDto, ['email'])) {}
