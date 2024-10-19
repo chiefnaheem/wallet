@@ -1,14 +1,17 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import {  UserEntity } from './user.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({ name: 'wallets' })
 export class WalletEntity extends BaseEntity {
-  @Column({ nullable: false })
-  balance: string;
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: false })
+  balance: number;
+
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
+  ledgerBalance: number;
 
   @Column({ nullable: false })
-  ledgerBalance: string;
+  walletNumber: string;
 
   @Column()
   currency: string;

@@ -1,4 +1,4 @@
-import serverConfig from '@alpharide/server/config/env.config';
+import serverConfig from '@gowagr/server/config/env.config';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';

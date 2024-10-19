@@ -1,12 +1,14 @@
 import { PasswordManager } from '@gowagr/common/functions/password-manager';
 import { UserEntity } from '@gowagr/server/database/entities/user.entity';
+import { TransactionService } from '@gowagr/transactions/service/transactions.service';
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { UserDto } from '../dto/index.dto';
 
 @Injectable()
@@ -15,48 +17,63 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    private readonly transactionService: TransactionService,
   ) {}
 
- 
+  /**
+   * Creates a new user and a wallet within a single transaction to maintain ACID principles.
+   */
+  async createUser(userData: Partial<UserEntity>): Promise<UserEntity> {
+    return await this.userRepository.manager.transaction(
+      async (entityManager: EntityManager) => {
+        try {
+          this.logger.debug(
+            `Creating user with data ${JSON.stringify(userData)}`,
+          );
 
-  async createUser(user: Partial<UserEntity>): Promise<UserEntity> {
-    try {
-      this.logger.debug(`Creating user with data ${JSON.stringify(user)}`);
-      const existingUser = await this.findUserByEmail(user.email);
-      if (existingUser) {
-        throw new ConflictException('User already exists');
-      }
-      const username = await this.getUserName(user.firstName, user.lastName)
-      const newUser = this.userRepository.create({
-        ...user,
-        isEmailVerified: true,
-        emailVerifiedAt: new Date(),
-        username,
-        password: await PasswordManager.hash(user.password),
-      });
-      const data = await this.userRepository.save(newUser);
+          // Check if user already exists
+          const existingUser = await this.findUserByEmail(userData.email);
+          if (existingUser) {
+            throw new ConflictException('User already exists');
+          }
 
+          // Prepare new user data
+          const hashedPassword = await PasswordManager.hash(userData.password);
+          const username = await this.getUserName(
+            userData.firstName,
+            userData.lastName,
+          );
 
+          // Create new user entity
+          const newUser = entityManager.create(UserEntity, {
+            ...userData,
+            isEmailVerified: true,
+            emailVerifiedAt: new Date(),
+            username,
+            password: hashedPassword,
+          });
 
-      return this.sanitizeUser(data) as unknown as UserEntity
-    } catch (error) {
-      this.logger.error(error);
-      throw error;
-    }
+          const savedUser = await entityManager.save(UserEntity, newUser);
+
+          await this.transactionService.createWallet(savedUser, entityManager);
+
+          return this.sanitizeUser(savedUser) as unknown as UserEntity;
+        } catch (error) {
+          this.logger.error(`Failed to create user: ${error.message}`);
+          throw new BadRequestException(error.message);
+        }
+      },
+    );
   }
 
   async getUserName(firstName: string, lastName: string) {
     let userName = `${firstName}${lastName}`.replace(/\s/g, '');
 
-    let isUserNameExist = await this.findUserByUsername(
-      userName.toLowerCase(),
-    );
+    let isUserNameExist = await this.findUserByUsername(userName.toLowerCase());
     while (isUserNameExist) {
       const random = Math.floor(1000 + Math.random() * 9000);
       userName = `${firstName}${lastName}${random}`.replace(/\s/g, '');
-      isUserNameExist = await this.findUserByUsername(
-        userName.toLowerCase(),
-      );
+      isUserNameExist = await this.findUserByUsername(userName.toLowerCase());
     }
     return userName;
   }
@@ -94,8 +111,8 @@ export class UserService {
     try {
       this.logger.debug(`Finding user with id ${id}`);
       const user = await this.userRepository.findOneOrFail({
-        where: {id},
-        relations: ['wallet']
+        where: { id },
+        relations: ['wallet'],
       });
       return user;
     } catch (error) {
@@ -117,7 +134,10 @@ export class UserService {
     }
   }
 
-  async updateUser(id: string, user: Partial<UserEntity>): Promise<UserEntity | undefined> {
+  async updateUser(
+    id: string,
+    user: Partial<UserEntity>,
+  ): Promise<UserEntity | undefined> {
     try {
       this.logger.debug(`Updating user with id ${id}`);
       Object.assign(user, { id });

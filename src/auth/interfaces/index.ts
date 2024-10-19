@@ -3,7 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 export type JwtPayload = {
   uid: string;
   email?: string;
-  name?: string;
   phoneNumber?: string;
 };
 
