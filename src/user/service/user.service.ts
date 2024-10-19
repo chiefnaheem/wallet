@@ -4,7 +4,6 @@ import {
   ConflictException,
   Injectable,
   Logger,
-  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -93,7 +92,9 @@ export class UserService {
   async findUserById(id: string): Promise<User | null> {
     try {
       this.logger.debug(`Finding user with id ${id}`);
-      const user = await this.userRepository.findOne(id);
+      const user = await this.userRepository.findOneOrFail({
+        where: {id}
+      });
       return user;
     } catch (error) {
       this.logger.error(error);
@@ -104,7 +105,7 @@ export class UserService {
   async deleteUser(id: string): Promise<null> {
     try {
       this.logger.debug(`Deleting company with id ${id}`);
-      const user = await this.userRepository.findOne(id);
+      const user = await this.findUserById(id);
       await this.userRepository.delete(id);
 
       return null;
