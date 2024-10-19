@@ -1,3 +1,4 @@
+import serverConfig from '@gowagr/server/config/env.config';
 import {
   ExecutionContext,
   NotFoundException,
@@ -6,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload, JwtPayloadWithRt } from 'src/auth/interfaces';
-import serverConfig from 'src/database/config/env.config';
 
 export const GetCurrentUser = createParamDecorator(
   (data: keyof JwtPayloadWithRt | undefined, context: ExecutionContext) => {

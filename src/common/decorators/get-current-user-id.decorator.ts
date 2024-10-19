@@ -29,7 +29,7 @@ export const GetCurrentUserId = createParamDecorator(
           ignoreExpiration: false,
         });
 
-        return decoded.id;
+        return decoded.uid;
       } catch (error) {
         if (
           error?.name?.toLowerCase().includes('token') ||
