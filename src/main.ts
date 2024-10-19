@@ -15,12 +15,7 @@ import { AppModule } from './app.module';
 import serverConfig from './server/config/env.config';
 import { loggerConfig } from './server/config/logger.config';
 import { swaggerTags } from './server/config/swagger.config';
-import { SlackService } from './slack/slack.service';
-import {
-  readNotifiedEndpoints,
-  writeNotifiedEndpoints,
-} from './utils/helpers/notification-file-utils';
-import { HttpExceptionFilter } from './slack/http-exception.filter';
+
 import { ConfigService } from '@nestjs/config';
 
 dotenv.config();
@@ -30,17 +25,15 @@ async function bootstrap(): Promise<void> {
     logger: WinstonModule.createLogger(loggerConfig),
   });
 
-  // Enable CORS for all origins and allow necessary headers
   app.enableCors({
     origin: '*', // Allow all origins
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Accept, Authorization',
-    credentials: true, // Set to true if you need to include cookies or authentication
+    credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });
 
-  // Enable compression for all responses
   app.use(compression());
   app.use(express.json({ limit: '20mb' }));
   app.use(express.urlencoded({ extended: true, limit: '20mb' }));
@@ -62,17 +55,6 @@ async function bootstrap(): Promise<void> {
       },
       whitelist: true,
       forbidNonWhitelisted: true,
-      exceptionFactory: (validationErrors = []) => {
-        // console.error('Validation errors:', validationErrors);
-        return new BadRequestException(
-          validationErrors.map((error) => ({
-            property: error.property,
-            constraints: error.constraints,
-            value: error.value,
-            children: error.children,
-          })),
-        );
-      },
     }),
   );
 

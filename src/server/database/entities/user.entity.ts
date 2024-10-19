@@ -8,6 +8,7 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
+import { WalletEntity } from './wallet.entity';
 
 
 

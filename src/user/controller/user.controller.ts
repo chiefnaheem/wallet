@@ -1,5 +1,5 @@
 import { ResponseDto } from '@gowagr/common/interface/response.interface';
-import { Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { GetCurrentUser } from 'src/common/decorators/get-current-user.decorator';
 import { UpdateUserDto } from '../dto/index.dto';
 import { UserService } from '../service/user.service';

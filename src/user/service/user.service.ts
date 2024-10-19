@@ -93,7 +93,8 @@ export class UserService {
     try {
       this.logger.debug(`Finding user with id ${id}`);
       const user = await this.userRepository.findOneOrFail({
-        where: {id}
+        where: {id},
+        relations: ['wallet']
       });
       return user;
     } catch (error) {
