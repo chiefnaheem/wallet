@@ -116,6 +116,9 @@
       "json",
       "ts"
     ],
+    "moduleNameMapper": {
+      "^@gowagr/(.*)$": "<rootDir>/$1"
+    },
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
