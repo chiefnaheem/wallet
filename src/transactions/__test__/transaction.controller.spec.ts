@@ -102,7 +102,7 @@ describe('UserController', () => {
 
       jest
         .spyOn(transactionService, 'transferFunds')
-        .mockResolvedValue(undefined); // Assuming no return value
+        .mockResolvedValue(undefined);
 
       const result = await userController.transfer(uid, payload);
 
