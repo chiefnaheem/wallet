@@ -12,8 +12,10 @@ export enum TransactionChannel {
   IN_APP = 'IN_APP',
 }
 
-
-
+export enum TransactionStatusEnum {
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+}
 
 @Entity({ name: 'transaction' })
 export class TransactionEntity extends BaseEntity {
@@ -38,8 +40,11 @@ export class TransactionEntity extends BaseEntity {
   @Column({ nullable: true })
   reason: string;
 
-  @Column()
-  status: string;
+  @Column({
+    type: 'enum',
+    enum: TransactionStatusEnum,
+  })
+  status: TransactionStatusEnum;
 
   @Column({ type: 'jsonb', nullable: true })
   response: Record<string, any>;
@@ -55,8 +60,6 @@ export class TransactionEntity extends BaseEntity {
 
   @Column({ nullable: true })
   uniqueCode: string;
-
-
 
   @Column({
     type: 'enum',

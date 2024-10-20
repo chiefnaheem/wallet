@@ -2,6 +2,7 @@ import { IdentificationManager } from '@gowagr/common/functions/identification-m
 import {
   TransactionChannel,
   TransactionEntity,
+  TransactionStatusEnum,
   transactionType,
 } from '@gowagr/server/database/entities/transaction.entity';
 import { WalletEntity } from '@gowagr/server/database/entities/wallet.entity';
@@ -114,7 +115,7 @@ export class TransactionService {
             currentBalance: senderWallet.balance.toString(),
             previousBalance: (senderWallet.balance + amount).toString(),
             reference: `TRX-${Date.now()}`,
-            status: 'COMPLETED',
+            status: TransactionStatusEnum.SUCCESS,
           });
           await entityManager.save(senderTransaction);
 
@@ -128,7 +129,7 @@ export class TransactionService {
             currentBalance: receiverWallet.balance.toString(),
             previousBalance: (receiverWallet.balance - amount).toString(),
             reference: `TRX-${Date.now()}`,
-            status: 'COMPLETED',
+            status: TransactionStatusEnum.SUCCESS,
           });
           await entityManager.save(receiverTransaction);
 
