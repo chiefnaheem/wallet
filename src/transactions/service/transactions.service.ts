@@ -79,7 +79,6 @@ export class TransactionService {
             throw new NotFoundException('Sender wallet not found');
           }
 
-          // Step 2: Get receiver's wallet with lock
           const receiverWallet = await entityManager
             .createQueryBuilder(WalletEntity, 'wallet')
             .where('wallet.userId = :receiverId', { receiverId })
@@ -90,22 +89,18 @@ export class TransactionService {
             throw new NotFoundException('Receiver wallet not found');
           }
 
-          // Step 3: Validate sender has enough balance
           if (senderWallet.balance < amount) {
             throw new BadRequestException(
               'Insufficient balance in sender’s wallet',
             );
           }
 
-          // Step 4: Deduct from sender’s wallet
           senderWallet.balance -= amount;
           await entityManager.save(senderWallet);
 
-          // Step 5: Add to receiver’s wallet
           receiverWallet.balance += amount;
           await entityManager.save(receiverWallet);
 
-          // Step 6: Create transaction history for sender
           const senderTransaction = entityManager.create(TransactionEntity, {
             user: senderWallet.user,
             amount,
@@ -119,7 +114,6 @@ export class TransactionService {
           });
           await entityManager.save(senderTransaction);
 
-          // Step 7: Create transaction history for receiver
           const receiverTransaction = entityManager.create(TransactionEntity, {
             user: receiverWallet.user,
             amount,
@@ -133,7 +127,6 @@ export class TransactionService {
           });
           await entityManager.save(receiverTransaction);
 
-          // Log success
           this.logger.log(
             `Successfully transferred ${amount} from User ${senderId} to User ${receiverId}`,
           );
