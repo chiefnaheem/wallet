@@ -24,7 +24,7 @@ describe('UserService', () => {
     isEmailVerified: true,
   };
 
-  const mockUserRepository = {
+  const mockUserRepository: any = {
     findOne: jest.fn(),
     findOneOrFail: jest.fn(),
     create: jest.fn().mockReturnValue(mockUser),
@@ -67,26 +67,63 @@ describe('UserService', () => {
   });
 
   describe('createUser', () => {
+    // it('should create a user and a wallet successfully', async () => {
+    //   const userData = {
+    //     email: 'test@example.com',
+    //     // password: 'password',
+    //     firstName: 'John',
+    //     lastName: 'Doe',
+    //   };
+    //   const hashedPassword = 'hashedPassword';
+    //   const mockUser = {
+    //     ...userData,
+    //     id: '1',
+    //     username: 'JohnDoe',
+    //     isEmailVerified: true,
+    //   };
+
+    //   jest.spyOn(userService, 'findUserByEmail').mockResolvedValue(null);
+    //   jest.spyOn(PasswordManager, 'hash').mockResolvedValue(hashedPassword);
+    //   mockUserRepository.create.mockReturnValue(mockUser);
+    //   mockUserRepository.save.mockResolvedValue(mockUser);
+    //   jest.spyOn(transactionService, 'createWallet').mockResolvedValue(null);
+
+    //   const result = await userService.createUser(userData);
+
+    //   expect(result).toEqual(mockUser);
+    // });
+
     it('should create a user and a wallet successfully', async () => {
       const userData = {
         email: 'test@example.com',
-        // password: 'password',
         firstName: 'John',
         lastName: 'Doe',
       };
+
       const hashedPassword = 'hashedPassword';
       const mockUser = {
         ...userData,
         id: '1',
         username: 'JohnDoe',
         isEmailVerified: true,
+        wallet: {
+          balance: 0,
+          id: 'wallet-id',
+          ledgerBalance: 0,
+        },
+        // password: hashedPassword,
       };
+      const mockWallet: any = { id: 'wallet-id', balance: 0, ledgerBalance: 0 };
 
+      // Mock the user repository and transaction service
       jest.spyOn(userService, 'findUserByEmail').mockResolvedValue(null);
       jest.spyOn(PasswordManager, 'hash').mockResolvedValue(hashedPassword);
       mockUserRepository.create.mockReturnValue(mockUser);
       mockUserRepository.save.mockResolvedValue(mockUser);
-      jest.spyOn(transactionService, 'createWallet').mockResolvedValue(null);
+      mockUserRepository.findOneBy = jest.fn().mockResolvedValue(null);
+      jest
+        .spyOn(transactionService, 'createWallet')
+        .mockResolvedValue(mockWallet);
 
       const result = await userService.createUser(userData);
 

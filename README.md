@@ -36,10 +36,10 @@ $ yarn install
 
 ```bash
 # development
-$ yarn run start
+$ yarn start
 
 # watch mode
-$ yarn run start:dev
+$ yarn start:dev
 
 # production mode
 $ yarn run start:prod
@@ -49,7 +49,7 @@ $ yarn run start:prod
 
 ```bash
 # unit tests
-$ yarn run test
+$ yarn test
 
 # e2e tests
 $ yarn run test:e2e
