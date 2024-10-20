@@ -1,6 +1,7 @@
 import { PaginationDto } from '@gowagr/common/dto/common.dto';
 import {
   TransactionChannel,
+  TransactionStatusEnum,
   transactionType,
 } from '@gowagr/server/database/entities/transaction.entity';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
@@ -42,11 +43,14 @@ export class FilterTransactionsDto extends PickType(PaginationDto, [
 
   @ApiPropertyOptional({
     description: 'Status of the transaction (e.g., COMPLETED, PENDING)',
-    example: 'COMPLETED',
+    enum: TransactionStatusEnum,
+    example: TransactionStatusEnum.SUCCESS,
   })
   @IsOptional()
-  @IsString({ message: 'status must be a string' })
-  status?: string;
+  @IsEnum(TransactionStatusEnum, {
+    message: 'status must be one of SUCCESS, FAILED',
+  })
+  status?: TransactionStatusEnum;
 
   @ApiPropertyOptional({
     description: 'Start date for filtering transactions (YYYY-MM-DD format)',
