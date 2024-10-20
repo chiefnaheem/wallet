@@ -60,6 +60,11 @@ export class UserService {
           return this.sanitizeUser(savedUser) as unknown as UserEntity;
         } catch (error) {
           this.logger.error(`Failed to create user: ${error.message}`);
+
+          if (error instanceof ConflictException) {
+            throw error;
+          }
+
           throw new BadRequestException(error.message);
         }
       },
@@ -151,8 +156,10 @@ export class UserService {
 
   async sanitizeUser(user: UserEntity): Promise<Partial<UserEntity>> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...rest } = user;
+      if (!user) {
+        return {};
+      }
+      const { password, ...rest } = user || {};
       return rest;
     } catch (error) {
       throw error;
