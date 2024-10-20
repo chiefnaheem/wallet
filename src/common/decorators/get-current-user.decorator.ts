@@ -22,7 +22,6 @@ export const GetCurrentUser = createParamDecorator(
       }
 
       let decoded: JwtPayload;
-      console.log('auth', authorization);
       try {
         decoded = jwt.verify(authorization, {
           secret: serverConfig.JWT_SECRET,

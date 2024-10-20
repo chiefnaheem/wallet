@@ -1,13 +1,14 @@
 import { GetCurrentUser } from '@gowagr/common/decorators/get-current-user.decorator';
 import { ResponseDto } from '@gowagr/common/interface/response.interface';
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { FilterTransactionsDto, TransferFundsDto } from '../dto/index.dto';
 import { TransactionService } from '../service/transactions.service';
 
 @ApiTags('Transactions')
 @Controller('transfers')
+@ApiBearerAuth('Bearer')
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 

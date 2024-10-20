@@ -1,9 +1,12 @@
 import { PasswordManager } from '@gowagr/common/functions/password-manager';
 import { UserEntity } from '@gowagr/server/database/entities/user.entity';
+import { WalletEntity } from '@gowagr/server/database/entities/wallet.entity';
 import { TransactionService } from '@gowagr/transactions/service/transactions.service';
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
@@ -16,6 +19,7 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    @Inject(forwardRef(() => TransactionService))
     private readonly transactionService: TransactionService,
   ) {}
 
@@ -30,18 +34,34 @@ export class UserService {
             `Creating user with data ${JSON.stringify(userData)}`,
           );
 
-          // Check if user already exists
+          if (!userData.email) {
+            throw new BadRequestException('Email is required');
+          }
+
           const existingUser = await this.findUserByEmail(userData.email);
           if (existingUser) {
             throw new ConflictException('User already exists');
           }
 
-          // Prepare new user data
           const hashedPassword = await PasswordManager.hash(userData.password);
-          const username = await this.getUserName(
+          let username = await this.getUserName(
             userData.firstName,
             userData.lastName,
           );
+
+          let isUsernameTaken = true;
+          while (isUsernameTaken) {
+            const userWithSameUsername = await this.userRepository.findOneBy({
+              username,
+            });
+
+            if (!userWithSameUsername) {
+              isUsernameTaken = false;
+            } else {
+              // If username is taken, append a random number
+              username = `${username}${Math.floor(Math.random() * 10000)}`;
+            }
+          }
 
           // Create new user entity
           const newUser = entityManager.create(UserEntity, {
@@ -49,12 +69,22 @@ export class UserService {
             isEmailVerified: true,
             emailVerifiedAt: new Date(),
             username,
+            email: userData.email,
             password: hashedPassword,
           });
 
           const savedUser = await entityManager.save(UserEntity, newUser);
 
-          await this.transactionService.createWallet(savedUser, entityManager);
+          const wallet = await this.transactionService.createWallet(
+            savedUser,
+            entityManager,
+          );
+
+          // await this.updateUserWithWallet(savedUser.id, wallet);
+
+          savedUser.wallet = wallet;
+          savedUser.id = savedUser.id;
+          await entityManager.save(UserEntity, savedUser);
 
           return this.sanitizeUser(savedUser) as unknown as UserEntity;
         } catch (error) {
@@ -70,15 +100,26 @@ export class UserService {
     );
   }
 
-  async getUserName(firstName: string, lastName: string) {
+  async getUserName(firstName: string, lastName: string): Promise<string> {
     let userName = `${firstName}${lastName}`.replace(/\s/g, '');
 
-    let isUserNameExist = await this.findUserByUsername(userName.toLowerCase());
+    let baseUserName = userName.toLowerCase();
+
+    // Check if the base username already exists
+    let isUserNameExist = await this.findUserByUsername(baseUserName);
+    let attempts = 0;
+
     while (isUserNameExist) {
-      const random = Math.floor(1000 + Math.random() * 9000);
-      userName = `${firstName}${lastName}${random}`.replace(/\s/g, '');
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      userName = `${baseUserName}${randomSuffix}`;
       isUserNameExist = await this.findUserByUsername(userName.toLowerCase());
+
+      attempts++;
+      if (attempts > 10) {
+        throw new BadRequestException('Failed to generate a unique username');
+      }
     }
+
     return userName;
   }
 

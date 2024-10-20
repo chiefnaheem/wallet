@@ -9,10 +9,14 @@ import {
   IsPhoneNumber,
   Length,
   Min,
+  MinLength,
 } from 'class-validator';
 import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
-import { AccountStatusEnum, GenderEnum, SignupMediumEnum } from '@gowagr/server/database/entities/user.entity';
-
+import {
+  AccountStatusEnum,
+  GenderEnum,
+  SignupMediumEnum,
+} from '@gowagr/server/database/entities/user.entity';
 
 export class UserDto {
   @ApiProperty({
@@ -66,7 +70,7 @@ export class UserDto {
     required: false,
   })
   @IsString()
-  @Min(6)
+  @MinLength(6)
   @IsNotEmpty()
   password: string;
 
@@ -144,11 +148,10 @@ export class UserDto {
   gender: GenderEnum;
 
   @ApiProperty({
-    example: '+1234567890',
+    example: '+234706074554',
     description: 'User phone number',
     required: false,
   })
-  @IsPhoneNumber(null, { message: 'Phone number must be valid' })
   @IsOptional()
   phoneNumber: string;
 
@@ -162,7 +165,16 @@ export class UserDto {
   lastLoggedIn: Date;
 }
 
+export class CreateUserDto extends PickType(UserDto, [
+  'email',
+  'password',
+  'firstName',
+  'lastName',
+  'signupMedium',
+  'phoneNumber',
+  'dob',
+]) {}
 
-export class CreateUserDto extends PickType(UserDto, ['email', 'password', 'firstName', 'lastName', 'signupMedium', 'phoneNumber', 'dob']){}
-
-export class UpdateUserDto extends PartialType(OmitType(CreateUserDto, ['email'])) {}
+export class UpdateUserDto extends PartialType(
+  OmitType(CreateUserDto, ['email']),
+) {}

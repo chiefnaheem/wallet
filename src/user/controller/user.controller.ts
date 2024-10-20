@@ -1,20 +1,45 @@
 import { GetCurrentUser } from '@gowagr/common/decorators/get-current-user.decorator';
 import { ResponseDto } from '@gowagr/common/interface/response.interface';
-import { Controller, Delete, Get, Param, Patch } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from '../dto/index.dto';
 import { UserService } from '../service/user.service';
 
 @ApiTags('User')
 @Controller('users')
+@ApiBearerAuth('Bearer')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get(':id')
   @ApiOperation({
+    summary: 'Get profile of a logged in user',
+  })
+  async getSelfProfile(
+    @GetCurrentUser('uid', ParseUUIDPipe) uid: string,
+  ): Promise<ResponseDto> {
+    const profile = await this.userService.findUserById(uid);
+    return {
+      statusCode: 200,
+      message: 'successfully fetched profile',
+      data: profile,
+    };
+  }
+
+  @Get(':id')
+  @ApiOperation({
     summary: 'Get profile of a user',
   })
-  async getProfile(@Param('id') id: string): Promise<ResponseDto> {
+  async getProfile(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<ResponseDto> {
     const profile = await this.userService.findUserById(id);
     return {
       statusCode: 200,
