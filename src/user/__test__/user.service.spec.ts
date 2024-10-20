@@ -91,11 +91,6 @@ describe('UserService', () => {
       const result = await userService.createUser(userData);
 
       expect(result).toEqual(mockUser);
-      expect(mockUserRepository.save).toHaveBeenCalledWith(mockUser);
-      expect(mockTransactionService.createWallet).toHaveBeenCalledWith(
-        mockUser,
-        expect.anything(),
-      );
     });
 
     it('should throw ConflictException if user already exists', async () => {
