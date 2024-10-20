@@ -1,4 +1,6 @@
+import { PasswordManager } from '@gowagr/common/functions/password-manager';
 import serverConfig from '@gowagr/server/config/env.config';
+import { UserService } from '@gowagr/user/service/user.service';
 import {
   BadRequestException,
   ForbiddenException,
@@ -6,8 +8,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PasswordManager } from 'src/common/functions/password-manager';
-import { UserService } from 'src/user/service/user.service';
 import { LoginDto } from '../dto/auth.dto';
 
 import { JwtPayload, Tokens } from '../interfaces';

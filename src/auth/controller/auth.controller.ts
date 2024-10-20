@@ -1,9 +1,9 @@
+import { Public } from '@gowagr/common/decorators/public.decorator';
+import { ResponseDto } from '@gowagr/common/interface/response.interface';
 import { CreateUserDto } from '@gowagr/user/dto/index.dto';
+import { UserService } from '@gowagr/user/service/user.service';
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Public } from 'src/common/decorators/public.decorator';
-import { ResponseDto } from 'src/common/interface/response.interface';
-import { UserService } from 'src/user/service/user.service';
 import { LoginDto } from '../dto/auth.dto';
 
 import { AuthService } from '../services/auth.service';
