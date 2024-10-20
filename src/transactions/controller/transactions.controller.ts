@@ -8,7 +8,7 @@ import { TransactionService } from '../service/transactions.service';
 
 @ApiTags('Transactions')
 @Controller('transfers')
-export class UserController {
+export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
   @Get()

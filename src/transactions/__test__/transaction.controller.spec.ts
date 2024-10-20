@@ -9,10 +9,10 @@ import {
   TransactionStatusEnum,
   transactionType,
 } from '@gowagr/server/database/entities/transaction.entity';
-import { UserController } from '../controller/transactions.controller';
+import { TransactionController } from '../controller/transactions.controller';
 
 describe('UserController', () => {
-  let userController: UserController;
+  let transactionController: TransactionController;
   let transactionService: TransactionService;
 
   const mockTransactionService = {
@@ -33,7 +33,7 @@ describe('UserController', () => {
           ],
         }),
       ],
-      controllers: [UserController],
+      controllers: [TransactionController],
       providers: [
         {
           provide: TransactionService,
@@ -47,7 +47,9 @@ describe('UserController', () => {
       })
       .compile();
 
-    userController = module.get<UserController>(UserController);
+    transactionController = module.get<TransactionController>(
+      TransactionController,
+    );
     transactionService = module.get<TransactionService>(TransactionService);
   });
 
@@ -74,7 +76,7 @@ describe('UserController', () => {
         .spyOn(transactionService, 'getTransactionHistory')
         .mockResolvedValue(mockResponse.data);
 
-      const result = await userController.getHistory(uid, query);
+      const result = await transactionController.getHistory(uid, query);
 
       expect(result).toEqual(mockResponse);
       expect(transactionService.getTransactionHistory).toHaveBeenCalledWith(
@@ -104,7 +106,7 @@ describe('UserController', () => {
         .spyOn(transactionService, 'transferFunds')
         .mockResolvedValue(undefined);
 
-      const result = await userController.transfer(uid, payload);
+      const result = await transactionController.transfer(uid, payload);
 
       expect(result).toEqual({
         statusCode: 200,

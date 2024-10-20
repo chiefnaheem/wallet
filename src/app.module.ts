@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtModule } from '@nestjs/jwt';
-import {  ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from './auth/guards/at.guard';
 import { UserModule } from './user/user.module';
@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import typeOrmConfig from 'typeorm.config';
 import { ConfigModule } from '@nestjs/config';
+import { TransactionModule } from './transactions/transactions.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -56,9 +57,9 @@ import { ConfigModule } from '@nestjs/config';
       ],
     }),
 
-
     UserModule,
     AuthModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [
@@ -75,4 +76,3 @@ import { ConfigModule } from '@nestjs/config';
   ],
 })
 export class AppModule {}
-
