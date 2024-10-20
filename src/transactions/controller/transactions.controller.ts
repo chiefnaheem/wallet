@@ -1,7 +1,8 @@
 import { GetCurrentUser } from '@gowagr/common/decorators/get-current-user.decorator';
 import { ResponseDto } from '@gowagr/common/interface/response.interface';
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { FilterTransactionsDto, TransferFundsDto } from '../dto/index.dto';
 import { TransactionService } from '../service/transactions.service';
 
@@ -44,6 +45,7 @@ export class UserController {
   @ApiOperation({
     summary: 'Transfer to another user',
   })
+  @UseGuards(ThrottlerGuard)
   async transfer(
     @GetCurrentUser('uid') uid: string,
     @Body() payload: TransferFundsDto,
